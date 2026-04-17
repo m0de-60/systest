@@ -714,8 +714,8 @@ async def exct_nick(threadname, recv):
     n_chan = systemdata[threadname, 'channels'].split(',')
     for x in range(len(n_chan)):
         nchan = n_chan[x].replace('#', '')
-        lk = '~ ! @ % + ^ -'
-        lk = lk.split(' ')
+        lkl = '~ ! @ % + ^ -'
+        lk = lkl.split(' ')
         for y in range(len(lk)):
             try:
                 if systemdata[threadname, nchan][dusername] == 1:
@@ -753,8 +753,8 @@ async def exct_quit(threadname, recv):
     q_chan = systemdata[threadname, 'channels'].split(',')
     for x in range(len(q_chan)):
         qchan = q_chan[x].replace('#', '')
-        lk = '~ ! @ % + ^ -'
-        lk = lk.split(' ')
+        lkl = '~ ! @ % + ^ -'
+        lk = lkl.split(' ')
         for y in range(len(lk)):
             try:
                 if systemdata[threadname, qchan][lk[y] + dusername] == 1 or systemdata[threadname, qchan][dusername] == 1:
@@ -872,8 +872,8 @@ def is_on_chan(threadname, chan, user):
     onchan = onchan.lower()
     onchan = onchan.replace('#', '')
     duser = user.decode()
-    lk = '~ ! @ % & + ^ -'
-    lk = lk.split(' ')
+    lkl = '~ ! @ % & + ^ -'
+    lk = lkl.split(' ')
     for x in range(len(lk)):
         try:
             if systemdata[threadname, onchan][duser] == 1:
@@ -894,8 +894,8 @@ def is_op(threadname, chan, user):
     opchan = opchan.replace('#', '')
     opchan = opchan.replace(':', '')
     duser = user.decode()
-    lk = '~ ! @ %'
-    lk = lk.split(' ')
+    lkl = '~ ! @ %'
+    lk = lkl.split(' ')
     for x in range(len(lk)):
         try:
             if systemdata[threadname, opchan][lk[x] + duser] == 1:
