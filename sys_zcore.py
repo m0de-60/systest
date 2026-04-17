@@ -872,17 +872,21 @@ def is_on_chan(threadname, chan, user):
     onchan = onchan.lower()
     onchan = onchan.replace('#', '')
     duser = user.decode()
-    lkl = '~ ! @ % & + ^ -'
+    lkl = '~ ! @ % & + ^ - @& &@'
     lk = lkl.split(' ')
-    for x in range(len(lk)):
-        try:
-            if systemdata[threadname, onchan][duser] == 1:
-                return True
-            if systemdata[threadname, onchan][lk[x] + duser] == 1:
-                return True
-            continue
-        except KeyError:
-            continue
+    # mprint(f'USERS: {systemdata[threadname, onchan]}')
+    try:
+        if systemdata[threadname, onchan][duser]:
+            return True
+    except KeyError:
+        for x in range(len(lk)):
+            try:
+                # mprint(f'USER CHECK: {lk[x] + duser} USER LIST: {systemdata[threadname, onchan]}')
+                tuser = lk[x] + duser
+                if systemdata[threadname, onchan][tuser]:
+                    return True
+            except KeyError:
+                continue
     return False
 
 # is_op(threadname, chan, user) ----------------------------------------------------------------------------------------
@@ -906,7 +910,7 @@ def is_op(threadname, chan, user):
 
 # is_vc(threadname, chan, user) ----------------------------------------------------------------------------------------
 # determines is user has voice +v on channel
-def is_vc(theadname, chan, user):
+def is_vc(threadname, chan, user):
     global systemdata
     vchan = chan.decode()
     vchan = vchan.lower()
