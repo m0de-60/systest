@@ -868,13 +868,19 @@ def ul_edit(threadname, args, chan, user):
 # determines if user is on channel
 def is_on_chan(threadname, chan, user):
     global systemdata
-    onchan = chan.decode()
+    try:
+        onchan = chan.decode()
+    except TypeError:
+        onchan = chan
     onchan = onchan.lower()
     onchan = onchan.replace('#', '')
-    duser = user.decode()
+    try:
+        duser = user.decode()
+    except TypeError:
+        duser = user
     lkl = '~ ! @ % & + ^ - @& &@'
     lk = lkl.split(' ')
-    # mprint(f'USERS: {systemdata[threadname, onchan]}')
+    mprint(f'USERS: {systemdata[threadname, onchan]}')
     try:
         if systemdata[threadname, onchan][duser]:
             return True
