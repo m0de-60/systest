@@ -617,7 +617,7 @@ async def exct_join(threadname, recv):
     if username.decode() == systemdata[threadname, 'botname']:
         return
     # add user to the user list
-    ul_edit(threadname, 'add', udata[2].decode(), username.decode())
+    ul_edit(threadname, 'add', udata[2], username.decode())
     # ------------------------------------------------------------------------------------------------------------------
     # Auto Op
     if istok(systemdata['botmasters'], dusername, ',') is True or istok(systemdata[threadname, 'admins'], dusername, ',') is True:
@@ -635,7 +635,7 @@ async def exct_join(threadname, recv):
     # Auto Kick (ban+kick on join)
     if istok(systemdata[threadname, 'akick'], dusername, ',') is True:
         if is_op(threadname, udata[2], bytes(systemdata[threadname, 'botname'], 'utf-8')) is True:
-            ul_edit(threadname, 'rem', udata[2].decode(), username.decode())
+            ul_edit(threadname, 'rem', udata[2], username.decode())
             systemdata[threadname, 'sock'].send(b'MODE ' + udata[2] + b' +b ' + username + b'\r\n')
             systemdata[threadname, 'sock'].send(b'KICK ' + udata[2] + b' ' + username + b' :AUTO KICK/BAN\r\n')
             return
@@ -651,7 +651,7 @@ async def exct_part(threadname, recv):
     mprint(f'{threadname} * PART {udata[2].decode()} * {username.decode()} {userhost.decode()}')
     if username.decode() == systemdata[threadname, 'botname']:
         return
-    ul_edit(threadname, 'rem', udata[2].decode(), username.decode())
+    ul_edit(threadname, 'rem', udata[2], username.decode())
     return
 # ======================================================================================================================
 # KICK
@@ -667,7 +667,7 @@ async def exct_kick(threadname, recv):
         time.sleep(1.5)
         systemdata[threadname, 'sock'].send(b'JOIN ' + udata[2] + b'\r\n')
     else:
-        ul_edit(threadname, 'rem', udata[2].decode(), udata[3].decode())
+        ul_edit(threadname, 'rem', udata[2], udata[3].decode())
     return
 # ======================================================================================================================
 # MODE
@@ -714,17 +714,17 @@ async def exct_nick(threadname, recv):
     n_chan = systemdata[threadname, 'channels'].split(',')
     for x in range(len(n_chan)):
         nchan = n_chan[x].replace('#', '')
-        lkl = '~ ! @ % + ^ -'
+        lkl = '~ ! @ & % + ^ -'
         lk = lkl.split(' ')
         for y in range(len(lk)):
             try:
                 if systemdata[threadname, nchan][dusername] == 1:
-                    ul_edit(threadname, 'rem', nchan, dusername)
-                    ul_edit(threadname, 'add', nchan, dnewuser)
+                    ul_edit(threadname, 'rem', nchan.encode(), dusername)
+                    ul_edit(threadname, 'add', nchan.encode(), dnewuser)
                     break
                 if systemdata[threadname, nchan][lk[y] + dusername] == 1:
-                    ul_edit(threadname, 'rem', nchan, lk[y] + dusername)
-                    ul_edit(threadname, 'add', nchan, lk[y] + dnewuser)
+                    ul_edit(threadname, 'rem', nchan.encode(), lk[y] + dusername)
+                    ul_edit(threadname, 'add', nchan.encode(), lk[y] + dnewuser)
                     break
             except KeyError:
                 continue
@@ -753,13 +753,17 @@ async def exct_quit(threadname, recv):
     q_chan = systemdata[threadname, 'channels'].split(',')
     for x in range(len(q_chan)):
         qchan = q_chan[x].replace('#', '')
-        lkl = '~ ! @ % + ^ -'
+        lkl = '~ ! @ & % + ^ -'
         lk = lkl.split(' ')
         for y in range(len(lk)):
             try:
-                if systemdata[threadname, qchan][lk[y] + dusername] == 1 or systemdata[threadname, qchan][dusername] == 1:
-                    ul_edit(threadname, 'rem', qchan, lk[y] + dusername)
-                    ul_edit(threadname, 'add', qchan, lk[y] + dnewuser)
+                if systemdata[threadname, qchan][dusername] == 1:
+                    # hqchan = '#' + qchan
+                    ul_edit(threadname, 'rem', qchan.encode(), dusername)
+                    break
+                if systemdata[threadname, qchan][lk[y] + dusername] == 1:
+                    # hqchan = '#' + qchan
+                    ul_edit(threadname, 'rem', qchan.encode(), lk[y] + dusername)
                     break
             except KeyError:
                 continue
@@ -851,13 +855,16 @@ def ul_edit(threadname, args, chan, user):
     # add user to user list
     if args.lower() == 'add':
         systemdata[threadname, edchan][user] = 1
+        # mprint(f'ul_edit ADD: {systemdata[threadname, edchan]}')
         return
     # ------------------------------------------------------------------------------------------------------------------
     # ul_edit(threadname, 'rem', b'#channel, b'username')
-    # remove user from channel user list (PART, KICK)
+    # remove user from channel user list (PART, KICK, NICK)
     if args.lower() == 'rem':
         systemdata[threadname, edchan][user] = 0
-        systemdata[threadname, edchan].remove(user)
+        del systemdata[threadname, edchan][user]
+        # systemdata[threadname, edchan].remove(user)
+        # mprint(f'ul_edit REM: {systemdata[threadname, edchan]}')
         return
     return
 # ======================================================================================================================
@@ -898,7 +905,7 @@ def is_on_chan(threadname, chan, user):
         duser = user
     lkl = '~ ! @ % & + ^ - @& &@'
     lk = lkl.split(' ')
-    mprint(f'USERS: {systemdata[threadname, onchan]}')
+    # mprint(f'USERS: {systemdata[threadname, onchan]}')
     try:
         if systemdata[threadname, onchan][duser]:
             return True
@@ -1142,8 +1149,7 @@ def renamefile(file, newfile):
 
 # deletes specified key from section in cnf file. ----------------------------------------------------------------------
 def cnfdelete(file, section, key):
-    # config = configparser.ConfigParser()
-    config = configparser.ConfigParser(strict=False)
+    config = configparser.ConfigParser()
     config.optionxform = str
     config.read(file)
     if config.has_option(section, key):
@@ -1155,8 +1161,7 @@ def cnfdelete(file, section, key):
 
 # returns true if specified cnf file list and key entry exists. --------------------------------------------------------
 def cnfexists(file, section, key):
-    # config = configparser.ConfigParser()
-    config = configparser.ConfigParser(strict=False)
+    config = configparser.ConfigParser()
     config.optionxform = str
     config.read(file)
     if config.has_option(section, key):
@@ -1166,8 +1171,7 @@ def cnfexists(file, section, key):
 
 # read from cnf file lists ---------------------------------------------------------------------------------------------
 def cnfread(file, section, key):
-    # config_object = ConfigParser()
-    config_object = ConfigParser(strict=False)
+    config_object = ConfigParser()
     config_object.optionxform = str
     config_object.read(file)
     info = config_object[section]
@@ -1176,8 +1180,7 @@ def cnfread(file, section, key):
 # write to cnf file lists ----------------------------------------------------------------------------------------------
 def cnfwrite(file, section, key, data):
     try:
-        # config_object = ConfigParser()
-        config_object = ConfigParser(strict=False)
+        config_object = ConfigParser()
         config_object.optionxform = str
         config_object.read(file)
         info = config_object[section]
@@ -1185,12 +1188,10 @@ def cnfwrite(file, section, key, data):
         with open(file, 'w') as conf:
             config_object.write(conf)
     except KeyError:
-        # config = configparser.ConfigParser()
-        config = configparser.ConfigParser(strict=False)
+        config = configparser.ConfigParser()
         config.optionxform = str
         config[section] = {key: data}
-        # with open(file, 'a') as configfile:
-        with open(file, 'w') as configfile:
+        with open(file, 'a') as configfile:
             config.write(configfile)
     return
 # write to txt files ---------------------------------------------------------------------------------------------------
