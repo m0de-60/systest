@@ -1,0 +1,8 @@
+[duckhunt]
+serverlist = sorcery,rizon
+
+[sorcery]
+channels = #castle_anthrax
+
+[rizon]
+channels = #testduck
