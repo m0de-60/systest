@@ -1142,7 +1142,8 @@ def renamefile(file, newfile):
 
 # deletes specified key from section in cnf file. ----------------------------------------------------------------------
 def cnfdelete(file, section, key):
-    config = configparser.ConfigParser()
+    # config = configparser.ConfigParser()
+    config = configparser.ConfigParser(strict=False)
     config.optionxform = str
     config.read(file)
     if config.has_option(section, key):
@@ -1154,7 +1155,8 @@ def cnfdelete(file, section, key):
 
 # returns true if specified cnf file list and key entry exists. --------------------------------------------------------
 def cnfexists(file, section, key):
-    config = configparser.ConfigParser()
+    # config = configparser.ConfigParser()
+    config = configparser.ConfigParser(strict=False)
     config.optionxform = str
     config.read(file)
     if config.has_option(section, key):
@@ -1164,7 +1166,8 @@ def cnfexists(file, section, key):
 
 # read from cnf file lists ---------------------------------------------------------------------------------------------
 def cnfread(file, section, key):
-    config_object = ConfigParser()
+    # config_object = ConfigParser()
+    config_object = ConfigParser(strict=False)
     config_object.optionxform = str
     config_object.read(file)
     info = config_object[section]
@@ -1173,7 +1176,8 @@ def cnfread(file, section, key):
 # write to cnf file lists ----------------------------------------------------------------------------------------------
 def cnfwrite(file, section, key, data):
     try:
-        config_object = ConfigParser()
+        # config_object = ConfigParser()
+        config_object = ConfigParser(strict=False)
         config_object.optionxform = str
         config_object.read(file)
         info = config_object[section]
@@ -1181,10 +1185,12 @@ def cnfwrite(file, section, key, data):
         with open(file, 'w') as conf:
             config_object.write(conf)
     except KeyError:
-        config = configparser.ConfigParser()
+        # config = configparser.ConfigParser()
+        config = configparser.ConfigParser(strict=False)
         config.optionxform = str
         config[section] = {key: data}
-        with open(file, 'a') as configfile:
+        # with open(file, 'a') as configfile:
+        with open(file, 'w') as configfile:
             config.write(configfile)
     return
 # write to txt files ---------------------------------------------------------------------------------------------------
